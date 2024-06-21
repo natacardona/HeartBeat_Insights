@@ -1,3 +1,9 @@
+### Setup técnico:
+
+```
+pip install pandas scikit-learn
+```
+
 ### Requerimientos:
 
 - Se debe desarrollar un modelo de clasificación con el conjunto de datos entregado en el ejercicio anterior, el cual debe predecir la presencia de la enfermedad cardíaca en pacientes. Se debe entregar un archivo .py con el desarrollo del modelo. (Test Split 10%)
