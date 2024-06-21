@@ -90,28 +90,28 @@ Tabla País:
 a. ¿Cuántos usuarios "Pacientes" fueron admitidos en nuestras clínicas los últimos 3 años?
 Para esta pregunta, creamos una tabla Admisiones con al menos las siguientes columnas:
 
-IdPaciente
-FechaAdmisión
-IdClinica
+id_paciente
+fecha_admision
+id_clinica
+tipo_servicio
 
 El script SQL para contar los pacientes admitidos en los últimos 3 años sería:
 
 ```
-SELECT COUNT(DISTINCT IdPaciente) AS TotalPacientes
-FROM Admisiones
-WHERE FechaAdmisión >= DATEADD(YEAR, -3, GETDATE());
+SELECT COUNT(DISTINCT id_paciente) AS total_pacientes
+FROM admisiones
+WHERE fecha_admision >= DATEADD(YEAR, -3, GETDATE());
 ```
 
 b. ¿Cuántos pacientes fueron al servicio de urgencias adultos, en los últimos 4 trimestres?
-Asumimos que la tabla Admisiones también tiene la columna TipoServicio y FechaAdmisión para capturar el tipo de servicio y la fecha de admisión, respectivamente.
 
 El script SQL para contar los pacientes que fueron al servicio de urgencias adultos en los últimos 4 trimestres sería:
 
 ```
-SELECT COUNT(DISTINCT IdPaciente) AS TotalPacientesUrgenciasAdultos
-FROM Admisiones
-WHERE TipoServicio = 'Urgencias Adultos'
-AND FechaAdmisión >= DATEADD(QUARTER, -4, GETDATE());
+SELECT COUNT(DISTINCT id_paciente) AS total_pacientes_urgencias_adultos
+FROM admisiones
+WHERE tipo_servicio = 'Urgencias Adultos'
+AND fecha_admision >= DATEADD(QUARTER, -4, GETDATE());
 ```
 
 ### Diseño de un modelo dimensional lógico basado en el modelo conceptual
