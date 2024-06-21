@@ -151,16 +151,92 @@ AND FechaAdmisión >= DATEADD(QUARTER, -4, GETDATE());
 
 a. Total de pacientes en los últimos 3 años:
 
+```
 SELECT COUNT(DISTINCT f.id_paciente) AS total_pacientes
 FROM admisiones f
 JOIN tiempo t ON f.id_tiempo = t.id_tiempo
 WHERE t.fecha >= DATEADD(YEAR, -3, GETDATE());
+```
 
 b. Pacientes en el servicio de urgencias adultos en los últimos 4 trimestres:
 
+```
 SELECT COUNT(DISTINCT f.id_paciente) AS total_pacientes_urgencias_adultos
 FROM admisiones f
 JOIN tiempo t ON f.id_tiempo = t.id_tiempo
 JOIN servicios s ON f.id_servicio = s.id_servicio
 WHERE s.tipo_servicio = 'Urgencias Adultos'
 AND t.fecha >= DATEADD(QUARTER, -4, GETDATE());
+```
+
+### Generar una tabla con los datos de usuario (paciente)
+
+```
+CREATE TABLE paciente (
+    id_paciente INT PRIMARY KEY,
+    tipo_doc VARCHAR(10),
+    identificacion VARCHAR(20),
+    primer_nombre VARCHAR(50),
+    primer_apellido VARCHAR(50),
+    edad INT,
+    fecha_registro DATE
+);
+```
+
+-- Datos de ejemplo:
+
+```
+INSERT INTO paciente (id_paciente, tipo_doc, identificacion, primer_nombre, primer_apellido, edad, fecha_registro)
+VALUES
+(1, 'cc', '123456', 'Sandra', 'Moreno', 25, '2024-04-30'),
+(2, '01', '123456', 'Sandra', 'Moreno', 25, '2024-04-29'),
+(3, 'cc', '654321', 'Juan', 'Perez', 30, '2024-05-01'),
+(4, '01', '654321', 'Juan', 'Perez', 30, '2024-05-01'),
+(5, 'cc', '789012', 'Maria', 'Lopez', 28, '2024-06-01');
+
+```
+
+### Reflejar los datos de pacientes de dos fuentes oficiales en una dimensión
+
+-- Crear tabla de pacientes unificada
+```
+CREATE TABLE paciente_unificado (
+    id_paciente INT PRIMARY KEY,
+    tipo_doc VARCHAR(10),
+    identificacion VARCHAR(20),
+    primer_nombre VARCHAR(50),
+    primer_apellido VARCHAR(50),
+    edad INT,
+    fecha_registro DATE
+);
+```
+
+-- Insertar registros únicos de pacientes
+```
+INSERT INTO paciente_unificado (id_paciente, tipo_doc, identificacion, primer_nombre, primer_apellido, edad, fecha_registro)
+SELECT DISTINCT 
+    ROW_NUMBER() OVER (ORDER BY identificacion) AS id_paciente,
+    tipo_doc,
+    identificacion,
+    primer_nombre,
+    primer_apellido,
+    edad,
+    MIN(fecha_registro) AS fecha_registro
+FROM (
+    SELECT tipo_doc, identificacion, primer_nombre, primer_apellido, edad, fecha_registro
+    FROM consulta_externa
+
+    UNION
+
+    SELECT tipo_doc, identificacion, primer_nombre, primer_apellido, edad, fecha_registro
+    FROM urgencias
+) AS unioned_pacientes
+GROUP BY tipo_doc, identificacion, primer_nombre, primer_apellido, edad;
+```
+
+### Justificación:
+
+- Llaves: La llave primaria id_paciente se genera como un número de fila único para asegurar que cada paciente tenga un identificador único.
+- Nivel de granularidad: Cada registro en paciente_unificado representa un paciente único.
+- Claridad: Los campos son claros y concisos, y se evita la duplicación de registros.
+- Vigencias y eliminaciones lógicas: Se puede implementar un proceso de una ETL para mantener los registros actualizados y manejar los cambios en la información de los pacientes.
