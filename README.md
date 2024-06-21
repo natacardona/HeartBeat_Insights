@@ -78,3 +78,32 @@ Tabla País:
 | IdBarrio | NombreBarrio | IdCiudad (llave foránea) |
 |----------|--------------|--------------------------|
 |          |              |                          |
+
+### Respuestas a las preguntas de negocio:
+
+a. ¿Cuántos usuarios "Pacientes" fueron admitidos en nuestras clínicas los últimos 3 años?
+Para esta pregunta, asumimos que tenemos una tabla Admisiones con al menos las siguientes columnas:
+
+IdPaciente
+FechaAdmisión
+IdClinica
+
+El script SQL para contar los pacientes admitidos en los últimos 3 años sería:
+
+```
+SELECT COUNT(DISTINCT IdPaciente) AS TotalPacientes
+FROM Admisiones
+WHERE FechaAdmisión >= DATEADD(YEAR, -3, GETDATE());
+```
+
+b. ¿Cuántos pacientes fueron al servicio de urgencias adultos, en los últimos 4 trimestres?
+Asumimos que la tabla Admisiones también tiene la columna TipoServicio y FechaAdmisión para capturar el tipo de servicio y la fecha de admisión, respectivamente.
+
+El script SQL para contar los pacientes que fueron al servicio de urgencias adultos en los últimos 4 trimestres sería:
+
+```
+SELECT COUNT(DISTINCT IdPaciente) AS TotalPacientesUrgenciasAdultos
+FROM Admisiones
+WHERE TipoServicio = 'Urgencias Adultos'
+AND FechaAdmisión >= DATEADD(QUARTER, -4, GETDATE());
+```
