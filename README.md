@@ -49,3 +49,4 @@ for test_size in [0.2, 0.13, 0.05]:
     entrenar_y_evaluar(X_scaled, y, test_size)
 ```
 
+### Normalización de la tabla dimensión jerarquizada GEOGRAFIA
