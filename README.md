@@ -50,3 +50,31 @@ for test_size in [0.2, 0.13, 0.05]:
 ```
 
 ### Normalización de la tabla dimensión jerarquizada GEOGRAFIA
+
+Desnormalizamos en varias tablas siguiendo la tercera forma normal
+
+Tabla País:
+
+# País
+
+| IdPaís | NombrePaís |
+|--------|------------|
+|        |            |
+
+# Departamento
+
+| IdDepartamento | NombreDepartamento | IdPaís (llave foránea) |
+|----------------|--------------------|------------------------|
+|                |                    |                        |
+
+# Ciudad
+
+| IdCiudad | NombreCiudad | IdDepartamento (llave foránea) |
+|----------|--------------|--------------------------------|
+|          |              |                                |
+
+# Barrio
+
+| IdBarrio | NombreBarrio | IdCiudad (llave foránea) |
+|----------|--------------|--------------------------|
+|          |              |                          |
