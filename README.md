@@ -57,32 +57,32 @@ Tabla País:
 
 # País
 
-| IdPaís | NombrePaís |
-|--------|------------|
-|        |            |
+| id_pais | nombre_pais |
+|---------|-------------|
+|         |             |
 
 # Departamento
 
-| IdDepartamento | NombreDepartamento | IdPaís (llave foránea) |
-|----------------|--------------------|------------------------|
-|                |                    |                        |
+| id_departamento | nombre_departamento | id_pais (llave foránea) |
+|-----------------|---------------------|-------------------------|
+|                 |                     |                         |
 
 # Ciudad
 
-| IdCiudad | NombreCiudad | IdDepartamento (llave foránea) |
-|----------|--------------|--------------------------------|
-|          |              |                                |
+| id_ciudad | nombre_ciudad | id_departamento (llave foránea) |
+|-----------|---------------|---------------------------------|
+|           |               |                                 |
 
 # Barrio
 
-| IdBarrio | NombreBarrio | IdCiudad (llave foránea) |
-|----------|--------------|--------------------------|
-|          |              |                          |
+| id_barrio | nombre_barrio | id_ciudad (llave foránea) |
+|-----------|---------------|---------------------------|
+|           |               |                           |
 
 ### Respuestas a las preguntas de negocio:
 
 a. ¿Cuántos usuarios "Pacientes" fueron admitidos en nuestras clínicas los últimos 3 años?
-Para esta pregunta, asumimos que tenemos una tabla Admisiones con al menos las siguientes columnas:
+Para esta pregunta, creamos una tabla Admisiones con al menos las siguientes columnas:
 
 IdPaciente
 FechaAdmisión
@@ -107,3 +107,60 @@ FROM Admisiones
 WHERE TipoServicio = 'Urgencias Adultos'
 AND FechaAdmisión >= DATEADD(QUARTER, -4, GETDATE());
 ```
+
+### Diseño de un modelo dimensional lógico basado en el modelo conceptual
+
+
+# Tabla de Hechos: Admisiones
+
+| id_admision | id_paciente | id_clinica | id_servicio | fecha_admision | tipo_servicio | id_tiempo |
+|-------------|-------------|------------|-------------|----------------|---------------|-----------|
+|             |             |            |             |                |               |           |
+
+# Tabla Dimensión: Pacientes
+
+| id_paciente | nombre_paciente | fecha_nacimiento | genero |
+|-------------|-----------------|------------------|--------|
+|             |                 |                  |        |
+
+# Tabla Dimensión: Clínica
+
+| id_clinica | nombre_clinica | direccion | id_geografia |
+|------------|----------------|-----------|--------------|
+|            |                |           |              |
+
+# Tabla Dimensión: Servicios
+
+| id_servicio | tipo_servicio                       |
+|-------------|-------------------------------------|
+|             |                                     |
+
+# Tabla Dimensión: Geografía
+
+| id_geografia | id_barrio |
+|--------------|-----------|
+|              |           |
+
+# Tabla Dimensión: Tiempo
+
+| id_tiempo | fecha | año | trimestre | mes | dia |
+|-----------|-------|-----|-----------|-----|-----|
+|           |       |     |           |     |     |
+
+## Scripts SQL para las preguntas (a y b)
+
+a. Total de pacientes en los últimos 3 años:
+
+SELECT COUNT(DISTINCT f.id_paciente) AS total_pacientes
+FROM admisiones f
+JOIN tiempo t ON f.id_tiempo = t.id_tiempo
+WHERE t.fecha >= DATEADD(YEAR, -3, GETDATE());
+
+b. Pacientes en el servicio de urgencias adultos en los últimos 4 trimestres:
+
+SELECT COUNT(DISTINCT f.id_paciente) AS total_pacientes_urgencias_adultos
+FROM admisiones f
+JOIN tiempo t ON f.id_tiempo = t.id_tiempo
+JOIN servicios s ON f.id_servicio = s.id_servicio
+WHERE s.tipo_servicio = 'Urgencias Adultos'
+AND t.fecha >= DATEADD(QUARTER, -4, GETDATE());
